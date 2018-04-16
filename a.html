@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas width="400" height="600" id="a"></canvas>
+</body>
+</html>
+<script type="text/javascript">
+	 var canvas=document.getElementById("a");
+	 var ctx=canvas.getContext("2d");
+
+	  bg={
+			"bg_day":"images/bg_day.png",
+			"megaman":"images/megaman.png",
+			"land":"images/land.png"
+		}
+
+		function Animation(frames,options){
+			this.frames = frames;
+			this.options=options;
+		}
+
+		function AnimationPlayer(animation){
+			var ani= animation;
+			this.length=0;
+			this.index=0;
+
+			this.frame = undefined;
+
+			this.elapsed=0;
+
+			this.setAnimation(ani);
+			this.reset();
+		}
+		
+
+		AnimationPlayer.prototype.setAnimation=function(animation) {
+			this.animation = animation; //相当于实例化
+			this.length=this.animation.frames.length;
+		}
+
+		AnimationPlayer.prototype.reset=function() {
+			this.index=0;
+			this.elapsed=0;
+			this.frame=this.animation.frames[this.index];
+		}
+		AnimationPlayer.prototype.update=function(dt) {
+			this.elapsed+=dt;
+			this.frame=this.animation.frames[this.index];
+			if(this.elapsed>=this.frame.duration){
+				this.index++;
+				this.elapsed-=this.frame.duration;
+			}
+		
+			if(this.index>=this.length){
+				if(this.animation.options.repeats){
+					this.index=this.animation.options.startFrame;
+				}else{this.index--;}
+			}
+		}
+
+
+
+
+		var idle = [
+            {x:120,y:4,w:34,h:41,offsetY:0,offsetX:0,duration:2000},
+            {x:163,y:4,w:34,h:41,offsetY:0,offsetX:0,duration:120},
+            {x:208,y:4,w:34,h:41,offsetY:0,offsetX:0,duration:120},
+            {x:254,y:4,w:34,h:41,offsetY:0,offsetX:0,duration:120},
+            {x:297,y:4,w:34,h:41,offsetY:0,offsetX:0,duration:120},
+            {x:339,y:4,w:34,h:41,offsetY:0,offsetX:0,duration:120}
+           
+        ];    
+
+         var move = [
+            {x:24,y:54,w:31,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:64,y:54,w:31,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:104,y:54,w:37,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:148,y:54,w:39,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:195,y:54,w:32,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:235,y:54,w:26,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:270,y:54,w:28,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:306,y:54,w:34,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:349,y:54,w:34,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:393,y:54,w:38,h:39,offsetY:0,offsetX:0,duration:100},
+            {x:441,y:54,w:34,h:39,offsetY:0,offsetX:0,duration:100}
+        ];
+
+      var readyToJump = [
+            {x:13,y:107,w:35,h:42,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:100}
+        ];
+
+        var up = [
+            {x:53,y:102,w:32,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:100},
+            {x:88,y:103,w:29,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:100},
+            {x:122,y:103,w:31,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.532258,y:1},duration:100},
+            {x:159,y:103,w:31,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:100}
+          
+        ];
+
+        var down = [
+            {x:195,y:103,w:36,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:120},
+            {x:243,y:103,w:32,h:47,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.578947,y:1},duration:120},
+            {x:283,y:103,w:34,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.557143,y:1},duration:120},
+            {x:325,y:103,w:34,h:46,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.585714,y:1},duration:120},
+            {x:347,y:103,w:30,h:48,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:120},
+            {x:364,y:103,w:34,h:49,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:120},
+            // {x:403,y:110,w:34,h:42,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:100},
+            // {x:443,y:110,w:37,h:42,offsetX:0,offsetRX:0,offsetY:0,pivot:{x:0.5,y:1},duration:100}
+        ];
+
+        var animation=new Animation(idle,{repeats:true,startFrame:0});
+		var animation2 = new Animation(move,{repeats:true,startFrame:0});
+
+
+		var animation3 = new Animation(readyToJump,{repeats:false,startFrame:0});
+        var playerReadyToJump = new AnimationPlayer(animation3);
+
+        //角色跳跃上升
+        var animation4 = new Animation(up,{repeats:true,startFrame:0});
+
+
+        var playerUp = new AnimationPlayer(animation4);
+
+        //角色下降
+        var animation5 = new Animation(down,{repeats:true,startFrame:0});
+        var playerDown = new AnimationPlayer(animation5);
+
+
+
+		var playerIdle=new AnimationPlayer(animation);
+
+	 	var playerMove = new AnimationPlayer(animation2);
+
+	 	var timer,
+	 		lastAnimationFrameTime=0,
+	 		paused,
+	 		elapsed=0,
+	 		now;
+	 	var motion={
+	 		idle:playerIdle,
+	 		move:playerMove,
+	 		readyToJump:playerReadyToJump,
+            isUp:playerUp,
+            isDown:playerDown,
+
+	 	},
+
+	 	canDoubleJump=true,
+	 	keyPressCounter=0,
+	 keyPressCounter2=0,
+	 	onGround=true,
+	 	jumping=false,
+
+	 	vy=0,
+	 	vx=0,
+	 	isUp=false,
+	 	isDown=false,
+	 	gravity=0.5,
+	 	y=canvas.height-112-60,
+	 	keyLock=false,
+
+
+	 	direction=1,
+	 	playerState ="idle",
+	 	currentMotion=undefined,
+	 	x=0,
+	 	
+	 	moveSpeed=4;
+
+	 	function resetFrameExceptCurrent(act){
+	 		var keys=Object.keys(motion).filter(function(key){
+	 			return key !==act;
+	 		}).forEach(function(key) {
+	 			motion[key].reset();
+	 		})
+	 	}
+
+	 	function drawBackground(){
+			ctx.drawImage(bg["bg_day"],0,canvas.height-512);
+			ctx.drawImage(bg["bg_day"],288,canvas.height-512);
+			ctx.drawImage(bg["land"],0,canvas.height-112);
+			ctx.drawImage(bg["land"],336,canvas.height-112);
+		}
+
+		
+
+		var count=0;
+		var bglength=Object.keys(bg).length;
+		for(var k in bg){
+			var img=new Image();
+			img.src=bg[k];
+			bg[k]=img;
+			img.onload=function() {
+				count++;
+				if(count == bglength){
+					start();
+				}
+			}
+		}
+	
+		function start(){
+			document.addEventListener("visibilitychange",function() {
+				if(document.visibilityState === "hidden"){
+					paused= true;
+					console.log("游戏暂停中");
+				}else{paused=false;console.log("游戏进行中");}
+			});
+
+		var key={};
+		var keyDef=[37,38,32,85,75];
+		var lastKey=0;
+		var lastFrameRight;
+		var lastFrameLeft;
+
+		function handleKeyDown(e){
+			if(keyDef.indexOf(e.keyCode) !==-1){
+				e.preventDefault();
+			}
+			key[e.keyCode]=1;
+			lastKey=e.keyCode;
+		}
+
+		function handleKeyUp(e){
+			if(keyDef.indexOf(e.keyCode) !==-1){
+				e.preventDefault();
+			}
+			key[e.keyCode]=0;
+		}
+
+		//两个加一起相当于鼠标的click事件
+		window.addEventListener("keydown",handleKeyDown);
+		window.addEventListener("keyup",handleKeyUp);
+
+			//监听是一直监听的，关闭网页才结束
+			//同时开始渲染才开始监听
+			//
+			function render(time){
+				ctx.clearRect(0,0,canvas.width,canvas.height);
+
+				drawBackground();
+				now = +new Date;
+
+				if(paused){
+					setTimeout(function(){
+						timer = requestAnimationFrame(timer);
+					},200)
+				}
+				else{
+					if(lastAnimationFrameTime!==0){
+						elapsed= Math.min(now - lastAnimationFrameTime,16);
+						//播放第二遍时 lastAnimationFrameTime就不是0了
+						//此时now-LFT=1 左右
+						//暂停后再开始 自动取16
+					}
+
+					lastAnimationFrameTime = now;
+
+					if(onGround && !jumping ){
+						playerState="idle";
+						vx=0;
+					}
+					if(key[37]){
+						if(onGround && !jumping){
+							playerState = "move";
+						}
+						direction =-1;
+						vx= moveSpeed * direction;
+					}
+
+					if(key[39]){
+						if(onGround & !jumping){
+							playerState="move";
+						}
+						direction=1;
+						vx=moveSpeed*direction;
+					}
+
+					if(key[38]){
+						if(keyPressCounter++===1){
+							if(onGround && !jumping){
+								playerState="readyToJump";
+								jumping=true;
+								onGround=false;
+								canDoubleJump=true;
+								vy=-12;
+							}else {//二段跳
+								if(vy<=0 && !onGround){
+									playerState="isUp";
+								}else if(vy>0 && !onGround){
+									playerState="isDown";
+								}
+								if(canDoubleJump){
+									canDoubleJump=false;
+									vy=-12;
+								}
+							}
+						}
+						else{
+							//循环第二遍 且一直按着跳时时
+							if(vy <=0 && !onGround){
+								playerState="isUp";
+							}else if(vy>0 && !onGround){
+								playerState="isDown";
+							}else if(onGround){
+								if(!key[37] && !key[39]){
+									playerState="idle";
+								}
+								else playerState="move";
+							}
+						}
+
+					}else{
+						keyPressCounter=0;
+						vy=Math.max(vy,-6);
+						jumping=false;
+						if(vy<=0 && !onGround){
+							playerState="isUp";
+						}else if(vy>0 && !onGround){
+							playerState="isDown";
+						}
+					}
+
+
+					vy += gravity;
+
+					y+=vy;
+					x+=vx;
+
+					if(y>=canvas.height-112-60){
+						y=canvas.height-112-60;
+						vy=0;
+						onGround=true;
+						jumping=false;
+					}
+
+					x=Math.min(x,400-40);
+					x=Math.max(x,0);
+
+					currentMotion = motion[playerState];
+					resetFrameExceptCurrent(playerState);
+					currentMotion.update(elapsed);
+
+					if(direction===1){
+						ctx.drawImage(bg["megaman"],
+							currentMotion.frame.x,currentMotion.frame.y,currentMotion.frame.w,currentMotion.frame.h,x,y,currentMotion.frame.w*1.5,currentMotion.frame.h*1.5);
+					}else{
+						ctx.save();
+						ctx.scale(-1,1);
+						ctx.drawImage(
+							bg["megaman"],currentMotion.frame.x,currentMotion.frame.y,
+                            currentMotion.frame.w,currentMotion.frame.h,
+                           -currentMotion.frame.w*1.5 - x,y,
+                            currentMotion.frame.w*1.5,currentMotion.frame.h*1.5
+                        );
+                        ctx.restore();
+					}
+
+					timer = requestAnimationFrame(render);
+				}
+
+			}
+		render();
+
+		}
+
+</script>
